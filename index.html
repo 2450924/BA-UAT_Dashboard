@@ -353,7 +353,7 @@ async function loadData() {
         {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
   } catch(err) {
     showLoader(false);
-    showError(err.message);
+    showError('Could not load data: ' + err.message);
   }
 }
 

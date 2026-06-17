@@ -434,24 +434,85 @@ function applyFilter() {
 }
 
 function selectRC(rc, cardEl) {
-  // Update main RC dropdown
-  const rcSelect = document.getElementById('rc-select');
-  if (rcSelect) {
-    rcSelect.value = rc;
-    applyFilter();
-  }
-  // Update visual selection on cards
+  if (!productData) return;
+  const sheets = productData.sheets || {};
+  const keys = Object.keys(sheets);
+
+  // Update visual selection
   document.querySelectorAll('.compare-card.clickable').forEach(c => {
     c.classList.remove('selected');
     c.style.border = '1px solid var(--border)';
+    c.style.background = 'var(--white)';
   });
   cardEl.classList.add('selected');
   cardEl.style.border = '2px solid var(--accent)';
-  // Switch to PO Status View tab to show selected RC data
-  const tabs = document.querySelectorAll('.tab');
-  const panels = document.querySelectorAll('.tab-panel');
-  tabs.forEach((t,i) => t.classList.toggle('active', i === 0));
-  panels.forEach((p,i) => p.classList.toggle('active', i === 0));
+  cardEl.style.background = 'var(--bl-bg)';
+
+  // Do NOT switch tabs or update RC dropdown — stay in Cycle Comparison
+
+  // Build key changes comparing selected RC against all others
+  const changesCard = document.getElementById('changes-card');
+  const changesList = document.getElementById('changes-list');
+  const changesTitle = document.getElementById('changes-title');
+
+  if (keys.length < 2) {
+    changesCard.style.display = 'none';
+    return;
+  }
+
+  const selectedStats = calcStats(sheets[rc]);
+  changesCard.style.display = 'block';
+
+  // Compare selected RC against every other RC
+  let html = '';
+  keys.filter(k => k !== rc).forEach(otherRC => {
+    const otherStats = calcStats(sheets[otherRC]);
+    const fixed    = Math.max(selectedStats.pass  - otherStats.pass,  0);
+    const newFails = Math.max(selectedStats.fail  - otherStats.fail,  0);
+    const newCases = Math.max(selectedStats.total - otherStats.total, 0);
+    const blocksFixed = Math.max(otherStats.block - selectedStats.block, 0);
+    const passImproved = selectedStats.pPct - otherStats.pPct;
+
+    html += `
+      <div style="margin-bottom:1rem">
+        <div style="font-size:12px;font-weight:600;color:var(--mid);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em">
+          ${rc} vs ${otherRC}
+        </div>
+        <div class="change-row">
+          <span class="change-badge" style="background:var(--gr-bg);color:var(--gr-ac)">Fixed</span>
+          <span class="change-label">Defects fixed (Fail → Pass)</span>
+          <span class="change-val" style="color:var(--gr-ac)">${fixed}</span>
+        </div>
+        <div class="change-row" style="margin-top:7px">
+          <span class="change-badge" style="background:var(--rd-bg);color:var(--rd-ac)">New fails</span>
+          <span class="change-label">New failures introduced</span>
+          <span class="change-val" style="color:var(--rd-ac)">${newFails}</span>
+        </div>
+        <div class="change-row" style="margin-top:7px">
+          <span class="change-badge" style="background:var(--bl-bg);color:var(--accent)">New</span>
+          <span class="change-label">New test cases added</span>
+          <span class="change-val" style="color:var(--accent)">${newCases}</span>
+        </div>
+        <div class="change-row" style="margin-top:7px">
+          <span class="change-badge" style="background:var(--gy-bg);color:var(--gy-ac)">Resolved</span>
+          <span class="change-label">Blocked items resolved</span>
+          <span class="change-val" style="color:var(--gy-ac)">${blocksFixed}</span>
+        </div>
+        <div class="change-row" style="margin-top:7px">
+          <span class="change-badge" style="${passImproved >= 0 ? 'background:var(--gr-bg);color:var(--gr-ac)' : 'background:var(--rd-bg);color:var(--rd-ac)'}">Pass %</span>
+          <span class="change-label">Pass rate change</span>
+          <span class="change-val" style="color:${passImproved >= 0 ? 'var(--gr-ac)' : 'var(--rd-ac)'}">
+            ${passImproved >= 0 ? '↑' : '↓'} ${Math.abs(passImproved)}%
+          </span>
+        </div>
+      </div>`;
+  });
+
+  changesTitle.textContent = 'Key changes — ' + rc + ' compared to other cycles';
+  changesList.innerHTML = html;
+
+  // Scroll to changes
+  changesCard.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 
 function buildComparison() {

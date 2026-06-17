@@ -237,60 +237,61 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
     <!-- Progress Calculator Tab -->
     <div class="tab-panel" id="tab-calc">
 
-      <!-- 3 read-only tiles + 1 editable next target -->
+      <!-- RC selector for calculator -->
+      <div class="calc-rc-wrap" style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem">
+        <label style="font-size:12px;color:var(--mid)">Calculate for Release Cycle</label>
+        <select class="rc-select" id="calc-rc-select" onchange="updateCalc()">
+          <option value="all">All Cycles (Latest)</option>
+        </select>
+      </div>
+
+      <!-- 3 input tiles -->
       <div class="calc-grid">
         <div class="calc-tile">
-          <div class="calc-tile-label">Total test cases</div>
+          <div class="calc-tile-label">Total test cases in RC</div>
           <div class="calc-tile-val" style="color:var(--accent)" id="calc-total">—</div>
         </div>
-        <div class="calc-tile">
-          <div class="calc-tile-label">Target (set by BA in Excel)</div>
-          <div class="calc-tile-val" style="color:var(--am-ac)" id="calc-target">—</div>
+        <div class="calc-tile editable">
+          <div class="calc-tile-label">Target to complete</div>
+          <input type="number" id="calc-target-input" min="0" value="0" oninput="updateCalc()">
         </div>
-        <div class="calc-tile">
-          <div class="calc-tile-label">Completed so far (Passed)</div>
-          <div class="calc-tile-val" style="color:var(--gr-ac)" id="calc-completed">—</div>
+        <div class="calc-tile editable">
+          <div class="calc-tile-label">Completed so far</div>
+          <input type="number" id="calc-completed-input" min="0" value="0" oninput="updateCalc()">
         </div>
       </div>
 
-      <div class="calc-note">📋 All values are read from the Excel file  •  BA updates target in the Progress Calculator sheet  •  Auto-refreshes every 60s</div>
+      <div class="calc-note">💡 Total auto-fills from the selected RC sheet  •  Enter target and completed to calculate RAG</div>
 
       <!-- RAG Result -->
       <div class="calc-rag" id="calc-rag">
         <div class="rag-dot" id="calc-rag-dot" style="background:var(--gy-ac)"></div>
-        <span id="calc-rag-text">Loading...</span>
+        <span id="calc-rag-text" style="color:var(--gy-ac)">Enter target and completed above</span>
       </div>
 
-      <!-- Next target planning field -->
-      <div class="next-target-wrap">
-        <div class="next-target-label">📅 Plan next target</div>
-        <div class="next-target-desc">Use this during calls to plan ahead — enter a new target to see what the RAG would look like. This does not affect the Excel file.</div>
-        <div class="next-target-input">
-          <input type="number" id="next-target-input" min="0" placeholder="e.g. 50" oninput="updateNextTarget()">
-          <span class="next-target-result" id="next-target-result">Enter a number to see the projected RAG</span>
+      <!-- 3 result pills -->
+      <div class="calc-grid" style="margin-bottom:1.25rem">
+        <div class="calc-tile">
+          <div class="calc-tile-label">Remaining</div>
+          <div class="calc-tile-val" style="color:var(--am-ac)" id="calc-remaining">—</div>
+        </div>
+        <div class="calc-tile">
+          <div class="calc-tile-label">% of target done</div>
+          <div class="calc-tile-val" style="color:var(--accent)" id="calc-pct">—</div>
+        </div>
+        <div class="calc-tile">
+          <div class="calc-tile-label">Not tested in RC</div>
+          <div class="calc-tile-val" style="color:var(--gy-ac)" id="calc-nt">—</div>
         </div>
       </div>
 
-      <!-- Breakdown + Guide -->
-      <div class="row2">
-        <div class="card">
-          <div class="card-title">Progress Breakdown</div>
-          <div class="breakdown-list">
-            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--accent)"></div><span class="breakdown-name">Total test cases</span><span class="breakdown-val" style="color:var(--accent)" id="bd-total">—</span></div>
-            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--am-ac)"></div><span class="breakdown-name">Current target</span><span class="breakdown-val" style="color:var(--am-ac)" id="bd-target">—</span></div>
-            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--gr-ac)"></div><span class="breakdown-name">Completed (Passed)</span><span class="breakdown-val" style="color:var(--gr-ac)" id="bd-completed">—</span></div>
-            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--am-ac)"></div><span class="breakdown-name">Remaining to target</span><span class="breakdown-val" style="color:var(--am-ac)" id="bd-remaining">—</span></div>
-            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--gr-ac)"></div><span class="breakdown-name">% of target done</span><span class="breakdown-val" style="color:var(--gr-ac)" id="bd-pct">—</span></div>
-            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--gy-ac)"></div><span class="breakdown-name">Not tested yet</span><span class="breakdown-val" style="color:var(--gy-ac)" id="bd-nt">—</span></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title">RAG Guide</div>
-          <div class="guide-list">
-            <div class="guide-row" style="background:var(--gr-bg)"><div class="guide-dot" style="background:var(--gr-ac)"></div><span class="guide-status" style="color:var(--gr-ac)">GREEN</span><span class="guide-desc">Target achieved or 75%+ done</span></div>
-            <div class="guide-row" style="background:var(--am-bg)"><div class="guide-dot" style="background:var(--am-ac)"></div><span class="guide-status" style="color:var(--am-ac)">AMBER</span><span class="guide-desc">In progress, below 75% of target</span></div>
-            <div class="guide-row" style="background:var(--rd-bg)"><div class="guide-dot" style="background:var(--rd-ac)"></div><span class="guide-status" style="color:var(--rd-ac)">RED</span><span class="guide-desc">Not started — 0 completed</span></div>
-          </div>
+      <!-- RAG Guide full width -->
+      <div class="card">
+        <div class="card-title">RAG Guide</div>
+        <div class="guide-list">
+          <div class="guide-row" style="background:var(--gr-bg)"><div class="guide-dot" style="background:var(--gr-ac)"></div><span class="guide-status" style="color:var(--gr-ac)">GREEN</span><span class="guide-desc">Target achieved or 75%+ done</span></div>
+          <div class="guide-row" style="background:var(--am-bg)"><div class="guide-dot" style="background:var(--am-ac)"></div><span class="guide-status" style="color:var(--am-ac)">AMBER</span><span class="guide-desc">In progress, below 75% of target</span></div>
+          <div class="guide-row" style="background:var(--rd-bg)"><div class="guide-dot" style="background:var(--rd-ac)"></div><span class="guide-status" style="color:var(--rd-ac)">RED</span><span class="guide-desc">Not started — 0 completed</span></div>
         </div>
       </div>
     </div>
@@ -417,12 +418,18 @@ function applyFilter() {
   set('sb-fail',s.fail);  set('sb-fail-pct',s.fPct+'%');
   set('sb-block',s.block);set('sb-block-pct',s.bPct+'%');
   set('sb-nt',s.nt);      set('sb-nt-pct',s.nPct+'%');
-  // Sync progress calculator
-  set('calc-total', s.total);
-  set('calc-completed', s.pass);
-  // target comes from data.json productData.target
-  const tgt = (productData && productData.target) ? productData.target : 0;
-  set('calc-target', tgt);
+  // Sync progress calculator RC selector
+  const calcRcSel = document.getElementById('calc-rc-select');
+  if (calcRcSel) {
+    const sheets = productData ? Object.keys(productData.sheets || {}) : [];
+    calcRcSel.innerHTML = '<option value="all">All Cycles (Latest)</option>';
+    sheets.forEach(rc => {
+      const opt = document.createElement('option');
+      opt.value = rc; opt.textContent = rc;
+      calcRcSel.appendChild(opt);
+    });
+    if (sheets.length > 0) calcRcSel.value = sheets[sheets.length-1];
+  }
   updateCalc();
 }
 
@@ -499,19 +506,27 @@ function buildTrend(prevRC, currRC) {
 }
 
 function updateCalc() {
-  const total     = parseInt(document.getElementById('calc-total').textContent)     || 0;
-  const target    = parseInt(document.getElementById('calc-target').textContent)    || 0;
-  const completed = parseInt(document.getElementById('calc-completed').textContent) || 0;
-  const nt        = parseInt(document.getElementById('t-nt').textContent)           || 0;
+  // Get RC selection
+  const rcSel = document.getElementById('calc-rc-select');
+  const rc = rcSel ? rcSel.value : 'all';
+
+  // Get rows for selected RC and calculate stats
+  const rows  = getRows(rc);
+  const s     = calcStats(rows);
+  const total = s.total;
+  const nt    = s.nt;
+
+  // Update total from selected RC
+  set('calc-total', total);
+  set('calc-nt', nt);
+
+  const target    = parseInt(document.getElementById('calc-target-input').value)    || 0;
+  const completed = parseInt(document.getElementById('calc-completed-input').value) || 0;
   const remaining = Math.max(target - completed, 0);
   const pct       = target > 0 ? Math.round(completed / target * 100) : 0;
 
-  document.getElementById('bd-total').textContent     = total;
-  document.getElementById('bd-target').textContent    = target;
-  document.getElementById('bd-completed').textContent = completed;
-  document.getElementById('bd-remaining').textContent = remaining;
-  document.getElementById('bd-pct').textContent       = pct + '%';
-  document.getElementById('bd-nt').textContent        = nt;
+  set('calc-remaining', remaining);
+  set('calc-pct', pct + '%');
 
   const rag     = document.getElementById('calc-rag');
   const ragText = document.getElementById('calc-rag-text');
@@ -519,7 +534,7 @@ function updateCalc() {
   let bg, bd, color, msg;
   if (target === 0) {
     bg='var(--gy-bg)';bd='var(--gy-bd)';color='var(--gy-ac)';
-    msg='No target set — BA needs to update target in Excel';
+    msg='Enter target and completed above';
   } else if (completed === 0) {
     bg='var(--rd-bg)';bd='var(--rd-bd)';color='var(--rd-ac)';
     msg='🔴  RED — Not started. 0 out of '+target+' completed.';
@@ -536,23 +551,6 @@ function updateCalc() {
   rag.style.background=bg; rag.style.borderColor=bd;
   ragText.style.color=color; ragText.textContent=msg;
   ragDot.style.background=color;
-  updateNextTarget();
-}
-
-function updateNextTarget() {
-  const completed = parseInt(document.getElementById('calc-completed').textContent) || 0;
-  const nextVal   = parseInt(document.getElementById('next-target-input').value) || 0;
-  const total     = parseInt(document.getElementById('calc-total').textContent) || 0;
-  const resultEl  = document.getElementById('next-target-result');
-  if (!nextVal) { resultEl.textContent = 'Enter a number to see the projected RAG'; resultEl.style.color='var(--mid)'; return; }
-  if (nextVal > total) { resultEl.textContent = 'Target cannot exceed total test cases ('+total+')'; resultEl.style.color='var(--rd-ac)'; return; }
-  const pct = Math.round(completed / nextVal * 100);
-  let color, msg;
-  if (completed === 0)        { color='var(--rd-ac)'; msg='🔴 RED — Not started'; }
-  else if (completed >= nextVal){ color='var(--gr-ac)'; msg='🟢 GREEN — Target would be achieved'; }
-  else if (pct >= 75)          { color='var(--gr-ac)'; msg='🟢 GREEN — '+pct+'% done, nearly there'; }
-  else                         { color='var(--am-ac)'; msg='🟠 AMBER — '+pct+'% of new target done'; }
-  resultEl.textContent = msg; resultEl.style.color = color;
 }
 
 function setSev(id,val,max){

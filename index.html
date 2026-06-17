@@ -106,6 +106,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .refresh-btn{font-size:12px;font-weight:500;color:var(--accent);background:var(--bl-bg);border:1px solid var(--bl-bd);border-radius:6px;padding:5px 12px;cursor:pointer}
 .refresh-btn:hover{background:#DBEAFE}
 .bottom-bar{height:4px;background:var(--accent);border-radius:2px;margin-top:2rem}
+.calc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+@media(max-width:600px){.calc-grid{grid-template-columns:1fr}}
+.calc-tile{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);padding:1.25rem;text-align:center}
+.calc-tile.editable{border:2px solid var(--am-ac);background:var(--yl-bg)}
+.calc-tile-label{font-size:11px;color:var(--mid);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.calc-tile-val{font-size:28px;font-weight:500;line-height:1.1}
+.calc-tile input{font-size:28px;font-weight:500;color:var(--yl-ac);background:transparent;border:none;text-align:center;width:100%;outline:none}
+.calc-tile input::-webkit-inner-spin-button{-webkit-appearance:none}
+.calc-note{font-size:12px;color:var(--mid);background:var(--bl-bg);border:1px solid var(--bl-bd);border-radius:var(--radius);padding:10px 14px;margin-bottom:1rem}
+.calc-rag{border-radius:var(--radius);padding:14px 18px;margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;border:1px solid var(--gy-bd);background:var(--gy-bg);transition:all .3s;font-size:13px;font-weight:600;color:var(--gy-ac)}
+.breakdown-list{display:flex;flex-direction:column;gap:0}
+.breakdown-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.breakdown-row:last-child{border-bottom:none}
+.breakdown-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.breakdown-name{font-size:13px;color:var(--mid);flex:1}
+.breakdown-val{font-size:14px;font-weight:600}
+.guide-list{display:flex;flex-direction:column;gap:8px}
+.guide-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px}
+.guide-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.guide-status{font-size:13px;font-weight:600;min-width:60px}
+.guide-desc{font-size:12px;color:var(--mid)}
+.next-target-wrap{background:var(--white);border:2px dashed var(--am-ac);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem}
+.next-target-label{font-size:11px;font-weight:600;color:var(--am-ac);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+.next-target-desc{font-size:12px;color:var(--mid);margin-bottom:.75rem}
+.next-target-input{display:flex;align-items:center;gap:10px}
+.next-target-input input{font-size:22px;font-weight:500;color:var(--am-ac);background:var(--yl-bg);border:1.5px solid var(--am-bd);border-radius:6px;padding:6px 12px;width:120px;text-align:center}
+.next-target-input input::-webkit-inner-spin-button{-webkit-appearance:none}
+.next-target-result{font-size:13px;color:var(--mid)}
 .not-found{text-align:center;padding:3rem;color:var(--mid)}
 .not-found .icon{font-size:48px;margin-bottom:1rem}
 .not-found h2{font-size:18px;font-weight:500;color:var(--dark);margin-bottom:.5rem}
@@ -142,6 +170,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
     <div class="tabs">
       <div class="tab active" onclick="switchTab('status',this)">📊 PO Status View</div>
       <div class="tab" onclick="switchTab('compare',this)">📈 Cycle Comparison</div>
+      <div class="tab" onclick="switchTab('calc',this)">🧮 Progress Calculator</div>
     </div>
 
     <!-- PO Status View -->
@@ -205,6 +234,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
         <div id="changes-list"></div>
       </div>
     </div>
+    <!-- Progress Calculator Tab -->
+    <div class="tab-panel" id="tab-calc">
+
+      <!-- 3 read-only tiles + 1 editable next target -->
+      <div class="calc-grid">
+        <div class="calc-tile">
+          <div class="calc-tile-label">Total test cases</div>
+          <div class="calc-tile-val" style="color:var(--accent)" id="calc-total">—</div>
+        </div>
+        <div class="calc-tile">
+          <div class="calc-tile-label">Target (set by BA in Excel)</div>
+          <div class="calc-tile-val" style="color:var(--am-ac)" id="calc-target">—</div>
+        </div>
+        <div class="calc-tile">
+          <div class="calc-tile-label">Completed so far (Passed)</div>
+          <div class="calc-tile-val" style="color:var(--gr-ac)" id="calc-completed">—</div>
+        </div>
+      </div>
+
+      <div class="calc-note">📋 All values are read from the Excel file  •  BA updates target in the Progress Calculator sheet  •  Auto-refreshes every 60s</div>
+
+      <!-- RAG Result -->
+      <div class="calc-rag" id="calc-rag">
+        <div class="rag-dot" id="calc-rag-dot" style="background:var(--gy-ac)"></div>
+        <span id="calc-rag-text">Loading...</span>
+      </div>
+
+      <!-- Next target planning field -->
+      <div class="next-target-wrap">
+        <div class="next-target-label">📅 Plan next target</div>
+        <div class="next-target-desc">Use this during calls to plan ahead — enter a new target to see what the RAG would look like. This does not affect the Excel file.</div>
+        <div class="next-target-input">
+          <input type="number" id="next-target-input" min="0" placeholder="e.g. 50" oninput="updateNextTarget()">
+          <span class="next-target-result" id="next-target-result">Enter a number to see the projected RAG</span>
+        </div>
+      </div>
+
+      <!-- Breakdown + Guide -->
+      <div class="row2">
+        <div class="card">
+          <div class="card-title">Progress Breakdown</div>
+          <div class="breakdown-list">
+            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--accent)"></div><span class="breakdown-name">Total test cases</span><span class="breakdown-val" style="color:var(--accent)" id="bd-total">—</span></div>
+            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--am-ac)"></div><span class="breakdown-name">Current target</span><span class="breakdown-val" style="color:var(--am-ac)" id="bd-target">—</span></div>
+            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--gr-ac)"></div><span class="breakdown-name">Completed (Passed)</span><span class="breakdown-val" style="color:var(--gr-ac)" id="bd-completed">—</span></div>
+            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--am-ac)"></div><span class="breakdown-name">Remaining to target</span><span class="breakdown-val" style="color:var(--am-ac)" id="bd-remaining">—</span></div>
+            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--gr-ac)"></div><span class="breakdown-name">% of target done</span><span class="breakdown-val" style="color:var(--gr-ac)" id="bd-pct">—</span></div>
+            <div class="breakdown-row"><div class="breakdown-dot" style="background:var(--gy-ac)"></div><span class="breakdown-name">Not tested yet</span><span class="breakdown-val" style="color:var(--gy-ac)" id="bd-nt">—</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">RAG Guide</div>
+          <div class="guide-list">
+            <div class="guide-row" style="background:var(--gr-bg)"><div class="guide-dot" style="background:var(--gr-ac)"></div><span class="guide-status" style="color:var(--gr-ac)">GREEN</span><span class="guide-desc">Target achieved or 75%+ done</span></div>
+            <div class="guide-row" style="background:var(--am-bg)"><div class="guide-dot" style="background:var(--am-ac)"></div><span class="guide-status" style="color:var(--am-ac)">AMBER</span><span class="guide-desc">In progress, below 75% of target</span></div>
+            <div class="guide-row" style="background:var(--rd-bg)"><div class="guide-dot" style="background:var(--rd-ac)"></div><span class="guide-status" style="color:var(--rd-ac)">RED</span><span class="guide-desc">Not started — 0 completed</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div class="footer">
@@ -327,6 +417,13 @@ function applyFilter() {
   set('sb-fail',s.fail);  set('sb-fail-pct',s.fPct+'%');
   set('sb-block',s.block);set('sb-block-pct',s.bPct+'%');
   set('sb-nt',s.nt);      set('sb-nt-pct',s.nPct+'%');
+  // Sync progress calculator
+  set('calc-total', s.total);
+  set('calc-completed', s.pass);
+  // target comes from data.json productData.target
+  const tgt = (productData && productData.target) ? productData.target : 0;
+  set('calc-target', tgt);
+  updateCalc();
 }
 
 function buildComparison() {
@@ -399,6 +496,63 @@ function buildTrend(prevRC, currRC) {
   const cls  = diff >= 0 ? 'trend-up' : 'trend-down';
   const arrow = diff >= 0 ? '↑' : '↓';
   return `<div class="trend-row"><span class="${cls}">${arrow} ${Math.abs(diff)}% vs ${prevRC}</span></div>`;
+}
+
+function updateCalc() {
+  const total     = parseInt(document.getElementById('calc-total').textContent)     || 0;
+  const target    = parseInt(document.getElementById('calc-target').textContent)    || 0;
+  const completed = parseInt(document.getElementById('calc-completed').textContent) || 0;
+  const nt        = parseInt(document.getElementById('t-nt').textContent)           || 0;
+  const remaining = Math.max(target - completed, 0);
+  const pct       = target > 0 ? Math.round(completed / target * 100) : 0;
+
+  document.getElementById('bd-total').textContent     = total;
+  document.getElementById('bd-target').textContent    = target;
+  document.getElementById('bd-completed').textContent = completed;
+  document.getElementById('bd-remaining').textContent = remaining;
+  document.getElementById('bd-pct').textContent       = pct + '%';
+  document.getElementById('bd-nt').textContent        = nt;
+
+  const rag     = document.getElementById('calc-rag');
+  const ragText = document.getElementById('calc-rag-text');
+  const ragDot  = document.getElementById('calc-rag-dot');
+  let bg, bd, color, msg;
+  if (target === 0) {
+    bg='var(--gy-bg)';bd='var(--gy-bd)';color='var(--gy-ac)';
+    msg='No target set — BA needs to update target in Excel';
+  } else if (completed === 0) {
+    bg='var(--rd-bg)';bd='var(--rd-bd)';color='var(--rd-ac)';
+    msg='🔴  RED — Not started. 0 out of '+target+' completed.';
+  } else if (completed >= target) {
+    bg='var(--gr-bg)';bd='var(--gr-bd)';color='var(--gr-ac)';
+    msg='🟢  GREEN — Target achieved! '+completed+' of '+target+' done.';
+  } else if (pct >= 75) {
+    bg='var(--gr-bg)';bd='var(--gr-bd)';color='var(--gr-ac)';
+    msg='🟢  GREEN — '+completed+' of '+target+' done. Nearly there!';
+  } else {
+    bg='var(--am-bg)';bd='var(--am-bd)';color='var(--am-ac)';
+    msg='🟠  AMBER — '+completed+' of '+target+' done. Keep going.';
+  }
+  rag.style.background=bg; rag.style.borderColor=bd;
+  ragText.style.color=color; ragText.textContent=msg;
+  ragDot.style.background=color;
+  updateNextTarget();
+}
+
+function updateNextTarget() {
+  const completed = parseInt(document.getElementById('calc-completed').textContent) || 0;
+  const nextVal   = parseInt(document.getElementById('next-target-input').value) || 0;
+  const total     = parseInt(document.getElementById('calc-total').textContent) || 0;
+  const resultEl  = document.getElementById('next-target-result');
+  if (!nextVal) { resultEl.textContent = 'Enter a number to see the projected RAG'; resultEl.style.color='var(--mid)'; return; }
+  if (nextVal > total) { resultEl.textContent = 'Target cannot exceed total test cases ('+total+')'; resultEl.style.color='var(--rd-ac)'; return; }
+  const pct = Math.round(completed / nextVal * 100);
+  let color, msg;
+  if (completed === 0)        { color='var(--rd-ac)'; msg='🔴 RED — Not started'; }
+  else if (completed >= nextVal){ color='var(--gr-ac)'; msg='🟢 GREEN — Target would be achieved'; }
+  else if (pct >= 75)          { color='var(--gr-ac)'; msg='🟢 GREEN — '+pct+'% done, nearly there'; }
+  else                         { color='var(--am-ac)'; msg='🟠 AMBER — '+pct+'% of new target done'; }
+  resultEl.textContent = msg; resultEl.style.color = color;
 }
 
 function setSev(id,val,max){

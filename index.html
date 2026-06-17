@@ -75,6 +75,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:1.25rem}
 .compare-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);padding:1.25rem}
 .compare-card.latest{border:2px solid var(--accent)}
+.compare-card.clickable{cursor:pointer;transition:all .2s}
+.compare-card.clickable:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.compare-card.selected{border:2px solid var(--accent);background:var(--bl-bg)}
 .compare-card.pending{opacity:.5;border-style:dashed}
 .compare-rc{font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
 .compare-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--bl-bg);color:var(--accent);display:inline-block;margin-bottom:.5rem}
@@ -430,6 +433,27 @@ function applyFilter() {
   updateCalc();
 }
 
+function selectRC(rc, cardEl) {
+  // Update main RC dropdown
+  const rcSelect = document.getElementById('rc-select');
+  if (rcSelect) {
+    rcSelect.value = rc;
+    applyFilter();
+  }
+  // Update visual selection on cards
+  document.querySelectorAll('.compare-card.clickable').forEach(c => {
+    c.classList.remove('selected');
+    c.style.border = '1px solid var(--border)';
+  });
+  cardEl.classList.add('selected');
+  cardEl.style.border = '2px solid var(--accent)';
+  // Switch to PO Status View tab to show selected RC data
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach((t,i) => t.classList.toggle('active', i === 0));
+  panels.forEach((p,i) => p.classList.toggle('active', i === 0));
+}
+
 function buildComparison() {
   if (!productData) return;
   const sheets = productData.sheets || {};
@@ -441,7 +465,8 @@ function buildComparison() {
     const isLatest = idx === keys.length - 1;
     const s = calcStats(sheets[rc]);
     const card = document.createElement('div');
-    card.className = 'compare-card' + (isLatest ? ' latest' : '');
+    card.className = 'compare-card clickable' + (isLatest ? ' latest selected' : '');
+    card.onclick = () => selectRC(rc, card);
     card.innerHTML = `
       <div class="compare-rc">${rc}</div>
       ${isLatest ? '<span class="compare-badge">Latest</span>' : ''}

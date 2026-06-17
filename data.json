@@ -1,0 +1,397 @@
+{
+  "lastUpdated": "16 Jun 2026 16:07",
+  "products": {
+    "ECFocus": {
+      "lastUpdated": "16 Jun 2026 16:07",
+      "sheets": {
+        "RC1": [
+          {
+            "tc": "TC-001",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-002",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-003",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-004",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-005",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-006",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-007",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-008",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-009",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-010",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-011",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-012",
+            "pf": "Blocked",
+            "sev": ""
+          },
+          {
+            "tc": "TC-013",
+            "pf": "Blocked",
+            "sev": ""
+          },
+          {
+            "tc": "TC-014",
+            "pf": "Blocked",
+            "sev": ""
+          },
+          {
+            "tc": "TC-015",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-016",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-017",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-018",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-019",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-020",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-021",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-022",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-023",
+            "pf": "Blocked",
+            "sev": ""
+          },
+          {
+            "tc": "TC-024",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-025",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-026",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-027",
+            "pf": "Fail",
+            "sev": "High"
+          },
+          {
+            "tc": "TC-028",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-029",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-030",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-031",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-032",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-033",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-034",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-035",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-036",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-037",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-038",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-039",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-040",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-041",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-042",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-043",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-044",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-045",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-046",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-047",
+            "pf": "Fail",
+            "sev": "Low"
+          },
+          {
+            "tc": "TC-048",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-049",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-050",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-051",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-052",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-053",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-054",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-055",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-056",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-057",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-058",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-059",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-060",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-061",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-062",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-063",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-064",
+            "pf": "Not Tested",
+            "sev": "Medium"
+          },
+          {
+            "tc": "TC-065",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-066",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-067",
+            "pf": "Not Tested",
+            "sev": "High"
+          },
+          {
+            "tc": "TC-068",
+            "pf": "Not Tested",
+            "sev": "High"
+          },
+          {
+            "tc": "TC-069",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-070",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-071",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-072",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-073",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-074",
+            "pf": "Not Tested",
+            "sev": "High"
+          },
+          {
+            "tc": "TC-075",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-076",
+            "pf": "Pass",
+            "sev": ""
+          },
+          {
+            "tc": "TC-077",
+            "pf": "Fail",
+            "sev": "Medium"
+          }
+        ]
+      }
+    }
+  }
+}

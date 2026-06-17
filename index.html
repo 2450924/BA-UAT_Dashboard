@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BA Usability Testing — Live Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#2563EB;--dark:#1E293B;--mid:#64748B;--border:#E2E8F0;
+  --bg:#F8F9FA;--white:#FFFFFF;
+  --gr-ac:#16A34A;--gr-bg:#F0FDF4;--gr-bd:#BBF7D0;
+  --am-ac:#D97706;--am-bg:#FFFBEB;--am-bd:#FDE68A;
+  --rd-ac:#DC2626;--rd-bg:#FFF1F2;--rd-bd:#FECACA;
+  --bl-bg:#EFF6FF;--bl-bd:#BFDBFE;
+  --gy-ac:#64748B;--gy-bg:#F1F5F9;--gy-bd:#CBD5E1;
+  --yl-ac:#CA8A04;--yl-bg:#FEFCE8;
+  --radius:10px;--shadow:0 1px 3px rgba(0,0,0,.06);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--dark);min-height:100vh}
+.top-bar{height:4px;background:var(--accent)}
+.shell{max-width:1100px;margin:0 auto;padding:1.75rem 1.5rem 3rem}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem}
+.header h1{font-size:20px;font-weight:500;color:var(--dark)}
+.header p{font-size:13px;color:var(--mid);margin-top:3px}
+.controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rc-wrap{display:flex;align-items:center;gap:8px}
+.rc-wrap label{font-size:12px;color:var(--mid)}
+.rc-select{font-size:13px;font-weight:500;color:var(--accent);border:1.5px solid var(--accent);border-radius:6px;padding:5px 10px;background:var(--white);cursor:pointer}
+.tabs{display:flex;gap:8px;margin-bottom:1.5rem}
+.tab{font-size:13px;font-weight:500;padding:7px 18px;border-radius:20px;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--mid);transition:all .2s}
+.tab.active{background:var(--accent);color:var(--white);border-color:var(--accent)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.rag-bar{border-radius:var(--radius);padding:12px 16px;margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;border:1px solid;transition:all .3s}
+.rag-bar.red{background:var(--rd-bg);border-color:var(--rd-bd)}
+.rag-bar.amber{background:var(--am-bg);border-color:var(--am-bd)}
+.rag-bar.green{background:var(--gr-bg);border-color:var(--gr-bd)}
+.rag-bar.grey{background:var(--gy-bg);border-color:var(--gy-bd)}
+.rag-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.rag-bar.red .rag-dot{background:var(--rd-ac)}.rag-bar.amber .rag-dot{background:var(--am-ac)}
+.rag-bar.green .rag-dot{background:var(--gr-ac)}.rag-bar.grey .rag-dot{background:var(--gy-ac)}
+.rag-text{font-size:13px;font-weight:600}
+.rag-bar.red .rag-text{color:#991B1B}.rag-bar.amber .rag-text{color:#92400E}
+.rag-bar.green .rag-text{color:#14532D}.rag-bar.grey .rag-text{color:var(--gy-ac)}
+.rag-sub{font-size:12px;color:var(--mid);margin-left:auto}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1.25rem}
+@media(max-width:700px){.tiles{grid-template-columns:repeat(3,1fr)}}
+.tile{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--border)}
+.tile-accent{height:4px}.tile-body{padding:.9rem 1rem .8rem}
+.tile-num{font-size:28px;font-weight:500;line-height:1;margin-bottom:5px}
+.tile-label{font-size:11px;color:var(--mid)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+@media(max-width:640px){.row2{grid-template-columns:1fr}}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);padding:1.25rem}
+.card-title{font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.9rem}
+.big-num{font-size:34px;font-weight:500;line-height:1;margin-bottom:4px}
+.big-sub{font-size:12px;color:var(--mid);margin-bottom:14px}
+.bar-track{background:var(--bg);border-radius:99px;height:8px;overflow:hidden;margin-bottom:6px}
+.bar-fill{height:100%;border-radius:99px;transition:width .6s ease}
+.bar-scale{display:flex;justify-content:space-between}
+.bar-scale span{font-size:11px;color:var(--mid)}.bar-scale .pct{font-weight:600}
+.sev-list{display:flex;flex-direction:column;gap:9px}
+.sev-row{display:flex;align-items:center;gap:10px}
+.sev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sev-name{font-size:13px;color:var(--mid);flex:1}
+.sev-bar-track{width:80px;background:var(--bg);border-radius:99px;height:5px;overflow:hidden}
+.sev-bar-fill{height:100%;border-radius:99px;transition:width .6s}
+.sev-val{font-size:13px;font-weight:600;min-width:18px;text-align:right}
+.status-list{display:flex;flex-direction:column;gap:7px}
+.status-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--bg)}
+.status-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.status-name{font-size:13px;color:var(--mid);flex:1}
+.status-count{font-size:15px;font-weight:600}
+.status-pct{font-size:11px;color:var(--mid);min-width:36px;text-align:right}
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:1.25rem}
+.compare-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);padding:1.25rem}
+.compare-card.latest{border:2px solid var(--accent)}
+.compare-card.pending{opacity:.5;border-style:dashed}
+.compare-rc{font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+.compare-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--bl-bg);color:var(--accent);display:inline-block;margin-bottom:.5rem}
+.compare-big{font-size:30px;font-weight:500;margin-bottom:3px}
+.compare-sub{font-size:12px;color:var(--mid);margin-bottom:14px}
+.mini-bars{display:flex;flex-direction:column;gap:6px}
+.mini-bar-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mid)}
+.mini-bar-track{flex:1;background:var(--bg);border-radius:99px;height:5px;overflow:hidden}
+.mini-bar-fill{height:100%;border-radius:99px}
+.mini-val{min-width:24px;text-align:right;font-size:11px;font-weight:500}
+.trend-row{display:flex;align-items:center;gap:6px;font-size:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.trend-up{color:var(--gr-ac);font-weight:500}
+.trend-down{color:var(--rd-ac);font-weight:500}
+.changes-card{margin-bottom:1.25rem}
+.change-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--bg);margin-bottom:7px}
+.change-badge{font-size:11px;font-weight:500;padding:3px 8px;border-radius:6px;min-width:70px;text-align:center;flex-shrink:0}
+.change-label{font-size:13px;color:var(--mid);flex:1}
+.change-val{font-size:15px;font-weight:600}
+.pending-msg{text-align:center;padding:2rem;color:var(--mid);font-size:13px}
+.pending-msg .big-icon{font-size:32px;margin-bottom:.5rem}
+.loader{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:12px;color:var(--mid);font-size:14px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:var(--rd-bg);border:1px solid var(--rd-bd);border-radius:var(--radius);padding:1.25rem 1.5rem;color:var(--rd-ac);font-size:13px;line-height:1.8}
+.error-box strong{display:block;margin-bottom:6px;font-size:14px}
+.info-banner{background:var(--bl-bg);border:1px solid var(--bl-bd);border-radius:var(--radius);padding:10px 16px;font-size:12px;color:#1E40AF;margin-bottom:1rem}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;flex-wrap:wrap;gap:.5rem}
+.footer span{font-size:11px;color:var(--mid)}
+.refresh-btn{font-size:12px;font-weight:500;color:var(--accent);background:var(--bl-bg);border:1px solid var(--bl-bd);border-radius:6px;padding:5px 12px;cursor:pointer}
+.refresh-btn:hover{background:#DBEAFE}
+.bottom-bar{height:4px;background:var(--accent);border-radius:2px;margin-top:2rem}
+.not-found{text-align:center;padding:3rem;color:var(--mid)}
+.not-found .icon{font-size:48px;margin-bottom:1rem}
+.not-found h2{font-size:18px;font-weight:500;color:var(--dark);margin-bottom:.5rem}
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+<div class="shell">
+  <div class="header">
+    <div>
+      <h1 id="dash-title">BA Usability Testing — Live Dashboard</h1>
+      <p id="dash-sub">Loading live data...</p>
+    </div>
+    <div class="controls">
+      <div class="rc-wrap">
+        <label for="rc-select">Release Cycle</label>
+        <select class="rc-select" id="rc-select" onchange="applyFilter()">
+          <option value="all">All Cycles</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="loader" id="loader"><div class="spinner"></div><span>Loading live data...</span></div>
+  <div class="error-box" id="error-box" style="display:none"><strong>Could not load data</strong><span id="error-msg"></span></div>
+  <div class="not-found" id="not-found" style="display:none">
+    <div class="icon">🔍</div>
+    <h2 id="not-found-title">Product not found</h2>
+    <p id="not-found-msg">Check the product name in the URL</p>
+  </div>
+
+  <div id="main-content" style="display:none">
+    <div class="info-banner" id="info-banner"></div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('status',this)">📊 PO Status View</div>
+      <div class="tab" onclick="switchTab('compare',this)">📈 Cycle Comparison</div>
+    </div>
+
+    <!-- PO Status View -->
+    <div class="tab-panel active" id="tab-status">
+      <div class="rag-bar amber" id="rag-bar">
+        <div class="rag-dot"></div>
+        <span class="rag-text" id="rag-text">Loading...</span>
+        <span class="rag-sub" id="rag-sub"></span>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="tile-accent" style="background:var(--accent)"></div><div class="tile-body"><div class="tile-num" style="color:var(--accent)" id="t-total">—</div><div class="tile-label">Total test cases</div></div></div>
+        <div class="tile"><div class="tile-accent" style="background:var(--gr-ac)"></div><div class="tile-body"><div class="tile-num" style="color:var(--gr-ac)" id="t-pass">—</div><div class="tile-label">Passed</div></div></div>
+        <div class="tile"><div class="tile-accent" style="background:var(--rd-ac)"></div><div class="tile-body"><div class="tile-num" style="color:var(--rd-ac)" id="t-fail">—</div><div class="tile-label">Failed</div></div></div>
+        <div class="tile"><div class="tile-accent" style="background:var(--gy-ac)"></div><div class="tile-body"><div class="tile-num" style="color:var(--gy-ac)" id="t-block">—</div><div class="tile-label">Blocked</div></div></div>
+        <div class="tile"><div class="tile-accent" style="background:var(--am-ac)"></div><div class="tile-body"><div class="tile-num" style="color:var(--am-ac)" id="t-nt">—</div><div class="tile-label">Not tested yet</div></div></div>
+      </div>
+      <div class="row2">
+        <div class="card">
+          <div class="card-title">Pass Rate</div>
+          <div class="big-num" style="color:var(--gr-ac)" id="c-pass-pct">—</div>
+          <div class="big-sub" id="c-pass-sub">—</div>
+          <div class="bar-track"><div class="bar-fill" id="bar-pass" style="background:var(--gr-ac);width:0%"></div></div>
+          <div class="bar-scale"><span>0%</span><span class="pct" style="color:var(--gr-ac)" id="bar-pass-lbl">0%</span><span>100%</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Execution Progress</div>
+          <div class="big-num" style="color:var(--accent)" id="c-exec-pct">—</div>
+          <div class="big-sub" id="c-exec-sub">—</div>
+          <div class="bar-track"><div class="bar-fill" id="bar-exec" style="background:var(--accent);width:0%"></div></div>
+          <div class="bar-scale"><span>0%</span><span class="pct" style="color:var(--accent)" id="bar-exec-lbl">0%</span><span>100%</span></div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="card">
+          <div class="card-title">Failed — By Severity</div>
+          <div class="sev-list">
+            <div class="sev-row"><div class="sev-dot" style="background:var(--rd-ac)"></div><span class="sev-name">Critical</span><div class="sev-bar-track"><div class="sev-bar-fill" id="sev-bar-crit" style="background:var(--rd-ac);width:0%"></div></div><span class="sev-val" style="color:var(--rd-ac)" id="sev-crit">0</span></div>
+            <div class="sev-row"><div class="sev-dot" style="background:var(--am-ac)"></div><span class="sev-name">High</span><div class="sev-bar-track"><div class="sev-bar-fill" id="sev-bar-high" style="background:var(--am-ac);width:0%"></div></div><span class="sev-val" style="color:var(--am-ac)" id="sev-high">0</span></div>
+            <div class="sev-row"><div class="sev-dot" style="background:var(--yl-ac)"></div><span class="sev-name">Medium</span><div class="sev-bar-track"><div class="sev-bar-fill" id="sev-bar-med" style="background:var(--yl-ac);width:0%"></div></div><span class="sev-val" style="color:var(--yl-ac)" id="sev-med">0</span></div>
+            <div class="sev-row"><div class="sev-dot" style="background:var(--gr-ac)"></div><span class="sev-name">Low</span><div class="sev-bar-track"><div class="sev-bar-fill" id="sev-bar-low" style="background:var(--gr-ac);width:0%"></div></div><span class="sev-val" style="color:var(--gr-ac)" id="sev-low">0</span></div>
+            <div class="sev-row"><div class="sev-dot" style="background:var(--gy-ac)"></div><span class="sev-name">Not set</span><div class="sev-bar-track"><div class="sev-bar-fill" id="sev-bar-ns" style="background:var(--gy-ac);width:0%"></div></div><span class="sev-val" style="color:var(--gy-ac)" id="sev-ns">0</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Status Breakdown</div>
+          <div class="status-list">
+            <div class="status-row"><div class="status-icon" style="background:var(--gr-bg)">✅</div><span class="status-name">Passed</span><span class="status-count" style="color:var(--gr-ac)" id="sb-pass">—</span><span class="status-pct" id="sb-pass-pct">—</span></div>
+            <div class="status-row"><div class="status-icon" style="background:var(--rd-bg)">❌</div><span class="status-name">Failed</span><span class="status-count" style="color:var(--rd-ac)" id="sb-fail">—</span><span class="status-pct" id="sb-fail-pct">—</span></div>
+            <div class="status-row"><div class="status-icon" style="background:var(--gy-bg)">🚫</div><span class="status-name">Blocked</span><span class="status-count" style="color:var(--gy-ac)" id="sb-block">—</span><span class="status-pct" id="sb-block-pct">—</span></div>
+            <div class="status-row"><div class="status-icon" style="background:var(--am-bg)">⏳</div><span class="status-name">Not tested yet</span><span class="status-count" style="color:var(--am-ac)" id="sb-nt">—</span><span class="status-pct" id="sb-nt-pct">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cycle Comparison -->
+    <div class="tab-panel" id="tab-compare">
+      <div class="compare-grid" id="compare-grid"></div>
+      <div class="card changes-card" id="changes-card" style="display:none">
+        <div class="card-title" id="changes-title">Key changes</div>
+        <div id="changes-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span id="last-updated">Last updated: —</span>
+    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+  </div>
+  <div class="bottom-bar"></div>
+</div>
+
+<script>
+// Read product from URL parameter
+const urlParams = new URLSearchParams(window.location.search);
+const PRODUCT = urlParams.get('product') || '';
+const DATA_URL = "https://cdn.jsdelivr.net/gh/2450924/BA-UAT_Dashboard@main/data.json";
+const REFRESH_MS = 60000;
+let productData = null;
+
+async function loadData() {
+  showLoader(true); hideError();
+  try {
+    const resp = await fetch(DATA_URL + "?t=" + Date.now());
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const allData = await resp.json();
+
+    // Check product exists
+    if (!PRODUCT || !allData.products || !allData.products[PRODUCT]) {
+      showLoader(false);
+      showNotFound(PRODUCT);
+      return;
+    }
+
+    productData = allData.products[PRODUCT];
+    const sheets = Object.keys(productData.sheets || {});
+
+    // Update title
+    document.getElementById('dash-title').textContent = PRODUCT + ' — BA Usability Testing';
+    document.getElementById('dash-sub').textContent =
+      'Live data  •  ' + sheets.length + ' release cycle(s)  •  Auto-refreshes every 60s';
+    document.getElementById('info-banner').textContent =
+      'Data last updated: ' + (productData.lastUpdated || 'Unknown');
+
+    // Build RC selector
+    const rcSelect = document.getElementById('rc-select');
+    rcSelect.innerHTML = '<option value="all">All Cycles</option>';
+    sheets.forEach((rc, idx) => {
+      const opt = document.createElement('option');
+      opt.value = rc;
+      opt.textContent = rc + (idx === sheets.length - 1 ? ' (latest)' : '');
+      rcSelect.appendChild(opt);
+    });
+    // Default to latest
+    if (sheets.length > 0) rcSelect.value = sheets[sheets.length - 1];
+
+    applyFilter();
+    buildComparison();
+    showLoader(false);
+    document.getElementById('last-updated').textContent =
+      'Last updated: ' + new Date().toLocaleString('en-GB',
+        {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  } catch(err) {
+    showLoader(false);
+    showError(err.message);
+  }
+}
+
+function getRows(rc) {
+  if (!productData) return [];
+  const sheets = productData.sheets || {};
+  if (rc === 'all') {
+    const keys = Object.keys(sheets);
+    return keys.length > 0 ? sheets[keys[keys.length - 1]] : [];
+  }
+  return sheets[rc] || [];
+}
+
+function calcStats(rows) {
+  const total = rows.length;
+  const pass  = rows.filter(r => r.pf === 'Pass').length;
+  const fail  = rows.filter(r => r.pf === 'Fail').length;
+  const block = rows.filter(r => r.pf === 'Blocked').length;
+  const nt    = rows.filter(r => r.pf === 'Not Tested').length;
+  const exec  = total - nt;
+  const pPct  = total > 0 ? Math.round(pass/total*100) : 0;
+  const ePct  = total > 0 ? Math.round(exec/total*100) : 0;
+  const fPct  = total > 0 ? Math.round(fail/total*100) : 0;
+  const bPct  = total > 0 ? Math.round(block/total*100) : 0;
+  const nPct  = total > 0 ? Math.round(nt/total*100) : 0;
+  const sc = rows.filter(r=>r.pf==='Fail'&&r.sev==='Critical').length;
+  const sh = rows.filter(r=>r.pf==='Fail'&&r.sev==='High').length;
+  const sm = rows.filter(r=>r.pf==='Fail'&&r.sev==='Medium').length;
+  const sl = rows.filter(r=>r.pf==='Fail'&&r.sev==='Low').length;
+  const sn = Math.max(fail-sc-sh-sm-sl, 0);
+  return {total,pass,fail,block,nt,exec,pPct,ePct,fPct,bPct,nPct,sc,sh,sm,sl,sn};
+}
+
+function applyFilter() {
+  const rc = document.getElementById('rc-select').value;
+  const rows = getRows(rc);
+  const s = calcStats(rows);
+  const rcLabel = rc === 'all' ? 'Latest Cycle' : rc;
+
+  let ragClass, ragText;
+  if(s.total===0)        {ragClass='grey'; ragText='No data for this cycle';}
+  else if(s.nt===s.total){ragClass='red';  ragText='🔴  RED — Testing has not started yet';}
+  else if(s.nt===0)      {ragClass='green';ragText='🟢  GREEN — All test cases executed. Ready for sign-off.';}
+  else                   {ragClass='amber';ragText='🟠  AMBER — Testing is in progress';}
+
+  document.getElementById('rag-bar').className = 'rag-bar ' + ragClass;
+  set('rag-text',ragText); set('rag-sub',rcLabel+'  •  '+s.total+' total');
+  set('t-total',s.total); set('t-pass',s.pass); set('t-fail',s.fail);
+  set('t-block',s.block); set('t-nt',s.nt);
+  set('c-pass-pct',s.pPct+'%'); set('c-pass-sub',s.pass+' of '+s.total+' test cases passed');
+  document.getElementById('bar-pass').style.width=s.pPct+'%'; set('bar-pass-lbl',s.pPct+'%');
+  set('c-exec-pct',s.ePct+'%'); set('c-exec-sub',s.exec+' of '+s.total+' cases executed');
+  document.getElementById('bar-exec').style.width=s.ePct+'%'; set('bar-exec-lbl',s.ePct+'%');
+  const mx=Math.max(s.sc,s.sh,s.sm,s.sl,s.sn,1);
+  setSev('crit',s.sc,mx); setSev('high',s.sh,mx);
+  setSev('med',s.sm,mx);  setSev('low',s.sl,mx); setSev('ns',s.sn,mx);
+  set('sb-pass',s.pass);  set('sb-pass-pct',s.pPct+'%');
+  set('sb-fail',s.fail);  set('sb-fail-pct',s.fPct+'%');
+  set('sb-block',s.block);set('sb-block-pct',s.bPct+'%');
+  set('sb-nt',s.nt);      set('sb-nt-pct',s.nPct+'%');
+}
+
+function buildComparison() {
+  if (!productData) return;
+  const sheets = productData.sheets || {};
+  const keys = Object.keys(sheets);
+  const grid = document.getElementById('compare-grid');
+  grid.innerHTML = '';
+
+  keys.forEach((rc, idx) => {
+    const isLatest = idx === keys.length - 1;
+    const s = calcStats(sheets[rc]);
+    const card = document.createElement('div');
+    card.className = 'compare-card' + (isLatest ? ' latest' : '');
+    card.innerHTML = `
+      <div class="compare-rc">${rc}</div>
+      ${isLatest ? '<span class="compare-badge">Latest</span>' : ''}
+      <div class="compare-big" style="color:var(--gr-ac)">${s.pPct}%</div>
+      <div class="compare-sub">${s.pass} of ${s.total} passed</div>
+      <div class="mini-bars">
+        <div class="mini-bar-row"><span style="min-width:60px">Pass</span><div class="mini-bar-track"><div class="mini-bar-fill" style="background:var(--gr-ac);width:${s.pPct}%"></div></div><span class="mini-val">${s.pass}</span></div>
+        <div class="mini-bar-row"><span style="min-width:60px">Fail</span><div class="mini-bar-track"><div class="mini-bar-fill" style="background:var(--rd-ac);width:${s.fPct}%"></div></div><span class="mini-val">${s.fail}</span></div>
+        <div class="mini-bar-row"><span style="min-width:60px">Blocked</span><div class="mini-bar-track"><div class="mini-bar-fill" style="background:var(--gy-ac);width:${s.bPct}%"></div></div><span class="mini-val">${s.block}</span></div>
+        <div class="mini-bar-row"><span style="min-width:60px">Not tested</span><div class="mini-bar-track"><div class="mini-bar-fill" style="background:var(--am-ac);width:${s.nPct}%"></div></div><span class="mini-val">${s.nt}</span></div>
+      </div>
+      ${idx > 0 ? buildTrend(keys[idx-1], rc) : ''}
+    `;
+    grid.appendChild(card);
+  });
+
+  // Pending next RC card
+  const nextRC = 'RC' + (keys.length + 1);
+  const pending = document.createElement('div');
+  pending.className = 'compare-card pending';
+  pending.innerHTML = `
+    <div class="compare-rc">${nextRC}</div>
+    <div class="pending-msg">
+      <div class="big-icon">📋</div>
+      <div>Not started yet</div>
+      <div style="margin-top:.5rem;font-size:12px">Will appear when BA adds a ${nextRC} sheet to the Excel file</div>
+    </div>`;
+  grid.appendChild(pending);
+
+  // Key changes between last two cycles
+  if (keys.length > 1) {
+    const prev = calcStats(sheets[keys[keys.length-2]]);
+    const curr = calcStats(sheets[keys[keys.length-1]]);
+    const fixed    = Math.max(curr.pass - prev.pass, 0);
+    const newFails = Math.max(curr.fail - prev.fail, 0);
+    const newCases = Math.max(curr.total - prev.total, 0);
+    const blocksFixed = Math.max(prev.block - curr.block, 0);
+    const changesCard = document.getElementById('changes-card');
+    changesCard.style.display = 'block';
+    document.getElementById('changes-title').textContent =
+      'Key changes ' + keys[keys.length-2] + ' → ' + keys[keys.length-1];
+    document.getElementById('changes-list').innerHTML = `
+      <div class="change-row"><span class="change-badge" style="background:var(--gr-bg);color:var(--gr-ac)">Fixed</span><span class="change-label">Defects fixed (Fail → Pass)</span><span class="change-val" style="color:var(--gr-ac)">${fixed}</span></div>
+      <div class="change-row"><span class="change-badge" style="background:var(--rd-bg);color:var(--rd-ac)">New fails</span><span class="change-label">New failures introduced</span><span class="change-val" style="color:var(--rd-ac)">${newFails}</span></div>
+      <div class="change-row"><span class="change-badge" style="background:var(--bl-bg);color:var(--accent)">New</span><span class="change-label">New test cases added</span><span class="change-val" style="color:var(--accent)">${newCases}</span></div>
+      <div class="change-row"><span class="change-badge" style="background:var(--gy-bg);color:var(--gy-ac)">Resolved</span><span class="change-label">Blocked items resolved</span><span class="change-val" style="color:var(--gy-ac)">${blocksFixed}</span></div>
+    `;
+  }
+}
+
+function buildTrend(prevRC, currRC) {
+  const sheets = productData.sheets;
+  const prev = calcStats(sheets[prevRC]);
+  const curr = calcStats(sheets[currRC]);
+  const diff = curr.pPct - prev.pPct;
+  const cls  = diff >= 0 ? 'trend-up' : 'trend-down';
+  const arrow = diff >= 0 ? '↑' : '↓';
+  return `<div class="trend-row"><span class="${cls}">${arrow} ${Math.abs(diff)}% vs ${prevRC}</span></div>`;
+}
+
+function setSev(id,val,max){
+  set('sev-'+id,val);
+  document.getElementById('sev-bar-'+id).style.width=max>0?Math.round(val/max*100)+'%':'0%';
+}
+function set(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+function switchTab(n,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+}
+function showLoader(s){
+  document.getElementById('loader').style.display=s?'flex':'none';
+  document.getElementById('main-content').style.display=s?'none':'block';
+}
+function showNotFound(product){
+  document.getElementById('not-found').style.display='block';
+  document.getElementById('not-found-title').textContent=
+    product ? '"'+product+'" not found' : 'No product specified';
+  document.getElementById('not-found-msg').textContent=
+    product ? 'The product "'+product+'" does not exist in the dashboard yet.'
+            : 'Add ?product=YourProductName to the URL';
+  document.getElementById('main-content').style.display='none';
+  document.getElementById('loader').style.display='none';
+}
+function showError(msg){
+  document.getElementById('error-box').style.display='block';
+  document.getElementById('error-msg').innerHTML='<br><br><b>Error:</b> '+msg+'<br><br>Try refreshing the page.';
+  document.getElementById('main-content').style.display='none';
+}
+function hideError(){
+  document.getElementById('error-box').style.display='none';
+  document.getElementById('not-found').style.display='none';
+}
+
+loadData();
+setInterval(loadData, REFRESH_MS);
+</script>
+</body>
+</html>

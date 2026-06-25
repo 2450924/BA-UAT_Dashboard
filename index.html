@@ -259,8 +259,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
           <input type="number" id="calc-target-input" min="0" value="0" oninput="updateCalc()">
         </div>
         <div class="calc-tile editable">
-          <div class="calc-tile-label">Completed so far</div>
-          <input type="number" id="calc-completed-input" min="0" value="0" oninput="updateCalc()">
+          
         </div>
       </div>
 
@@ -588,22 +587,70 @@ function buildTrend(prevRC, currRC) {
   return `<div class="trend-row"><span class="${cls}">${arrow} ${Math.abs(diff)}% vs ${prevRC}</span></div>`;
 }
 
+function saveCalcValues() {
+  const target = document.getElementById('calc-target-input').value;
+  const date   = document.getElementById('calc-date-input').value;
+  if (target) localStorage.setItem('calc_target', target);
+  if (date)   localStorage.setItem('calc_date', date);
+}
+
+function loadCalcValues() {
+  const today      = new Date().toISOString().split('T')[0];
+  const savedDate  = localStorage.getItem('calc_date');
+  const savedTarget= localStorage.getItem('calc_target');
+
+  // If target date has passed — clear values
+  if (savedDate && savedDate < today) {
+    localStorage.removeItem('calc_target');
+    localStorage.removeItem('calc_date');
+    document.getElementById('calc-note').textContent =
+      '📅 Previous target date has passed. Please enter a new target and date.';
+    document.getElementById('calc-note').style.background = 'var(--am-bg)';
+    document.getElementById('calc-note').style.borderColor = 'var(--am-bd)';
+    return;
+  }
+
+  // Restore saved values
+  if (savedTarget) document.getElementById('calc-target-input').value = savedTarget;
+  if (savedDate)   document.getElementById('calc-date-input').value   = savedDate;
+}
+
 function updateCalc() {
-  // Only read total from RC sheet — everything else is manual input
-  const rcSel = document.getElementById('calc-rc-select');
-  const rc    = rcSel ? rcSel.value : 'all';
-  const rows  = getRows(rc);
-  const total = rows.length;
+  // Read total and completed from RC sheet automatically
+  const rcSel    = document.getElementById('calc-rc-select');
+  const rc       = rcSel ? rcSel.value : 'all';
+  const rows     = getRows(rc);
+  const total    = rows.length;
+  const completed = rows.filter(r => r.pf === 'Pass').length;
 
   set('calc-total', total);
+  set('calc-completed-auto', completed);
 
-  const target    = parseInt(document.getElementById('calc-target-input').value)    || 0;
-  const completed = parseInt(document.getElementById('calc-completed-input').value) || 0;
+  const target    = parseInt(document.getElementById('calc-target-input').value) || 0;
+  const dateVal   = document.getElementById('calc-date-input').value;
   const remaining = Math.max(target - completed, 0);
   const pct       = target > 0 ? Math.round(completed / target * 100) : 0;
 
-  set('calc-remaining', remaining > 0 ? remaining : '—');
+  set('calc-remaining', target > 0 ? remaining : '—');
   set('calc-pct', target > 0 ? pct + '%' : '—');
+
+  // Show days remaining until target date
+  if (dateVal) {
+    const today    = new Date(); today.setHours(0,0,0,0);
+    const targetDt = new Date(dateVal);
+    const diffDays = Math.ceil((targetDt - today) / (1000*60*60*24));
+    const noteEl   = document.getElementById('calc-note');
+    if (diffDays < 0) {
+      noteEl.textContent = '⚠️ Target date has passed. Please enter a new target.';
+      noteEl.style.background = 'var(--rd-bg)'; noteEl.style.borderColor = 'var(--rd-bd)';
+    } else if (diffDays === 0) {
+      noteEl.textContent = '⚠️ Today is the target date!';
+      noteEl.style.background = 'var(--am-bg)'; noteEl.style.borderColor = 'var(--am-bd)';
+    } else {
+      noteEl.textContent = '📅 ' + diffDays + ' day(s) remaining until target date  •  Completed auto-fills from selected RC Pass count';
+      noteEl.style.background = 'var(--bl-bg)'; noteEl.style.borderColor = 'var(--bl-bd)';
+    }
+  }
 
   const rag     = document.getElementById('calc-rag');
   const ragText = document.getElementById('calc-rag-text');
@@ -611,7 +658,7 @@ function updateCalc() {
   let bg, bd, color, msg;
   if (target === 0) {
     bg='var(--gy-bg)';bd='var(--gy-bd)';color='var(--gy-ac)';
-    msg='Enter target and completed above';
+    msg='Enter target and target date above';
   } else if (completed === 0) {
     bg='var(--rd-bg)';bd='var(--rd-bd)';color='var(--rd-ac)';
     msg='🔴  RED — Not started. 0 out of '+target+' completed.';
@@ -667,6 +714,7 @@ function hideError(){
 
 loadData();
 setInterval(loadData, REFRESH_MS);
+loadCalcValues();
 </script>
 </body>
 </html>

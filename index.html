@@ -262,9 +262,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
           <div class="calc-tile-label">Target date</div>
           <input type="date" id="calc-date-input" oninput="saveCalcValues();updateCalc()" style="font-size:14px;font-weight:500;color:var(--yl-ac);background:var(--yl-bg);border:1.5px solid var(--am-bd);border-radius:6px;width:100%;text-align:center;padding:6px 2px">
         </div>
-        <div class="calc-tile">
-          <div class="calc-tile-label">Completed so far (auto)</div>
-          <div class="calc-tile-val" style="color:var(--gr-ac)" id="calc-completed-auto">—</div>
+        <div class="calc-tile editable">
+          <div class="calc-tile-label">Completed so far</div>
+          <input type="number" id="calc-completed-input" min="0" value="0" oninput="saveCalcValues();updateCalc()">
         </div>
       </div>
 
@@ -599,8 +599,10 @@ function resetCalcValues() {
   if (!confirm('Are you sure you want to reset the target and date? This cannot be undone.')) return;
   localStorage.removeItem('calc_target');
   localStorage.removeItem('calc_date');
+  localStorage.removeItem('calc_completed');
   document.getElementById('calc-target-input').value = '0';
   document.getElementById('calc-date-input').value = '';
+  document.getElementById('calc-completed-input').value = '0';
   const noteEl = document.getElementById('calc-note');
   noteEl.textContent = '✅ Reset done. Enter a new target and target date above.';
   noteEl.style.background = 'var(--gr-bg)';
@@ -611,8 +613,10 @@ function resetCalcValues() {
 function saveCalcValues() {
   const tEl = document.getElementById('calc-target-input');
   const dEl = document.getElementById('calc-date-input');
+  const cEl = document.getElementById('calc-completed-input');
   if (tEl && tEl.value) localStorage.setItem('calc_target', tEl.value);
   if (dEl && dEl.value) localStorage.setItem('calc_date', dEl.value);
+  if (cEl && cEl.value) localStorage.setItem('calc_completed', cEl.value);
 }
 
 function loadCalcValues() {
@@ -640,6 +644,9 @@ function loadCalcValues() {
   // Restore saved values
   if (savedTarget) targetEl.value = savedTarget;
   if (savedDate)   dateEl.value   = savedDate;
+  const savedCompleted = localStorage.getItem('calc_completed');
+  const compEl = document.getElementById('calc-completed-input');
+  if (savedCompleted && compEl) compEl.value = savedCompleted;
 }
 
 function updateCalc() {
@@ -648,10 +655,8 @@ function updateCalc() {
   const rc       = rcSel ? rcSel.value : 'all';
   const rows     = getRows(rc);
   const total    = rows.length;
-  const completed = rows.filter(r => r.pf === 'Pass').length;
-
   set('calc-total', total);
-  set('calc-completed-auto', completed);
+  const completed = parseInt(document.getElementById('calc-completed-input')?.value) || 0;
 
   const target    = parseInt(document.getElementById('calc-target-input').value) || 0;
   const dateEl2 = document.getElementById('calc-date-input');

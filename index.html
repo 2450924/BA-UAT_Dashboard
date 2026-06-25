@@ -647,6 +647,8 @@ function loadCalcValues() {
   const savedCompleted = localStorage.getItem('calc_completed');
   const compEl = document.getElementById('calc-completed-input');
   if (savedCompleted && compEl) compEl.value = savedCompleted;
+  // Trigger recalculation after restoring values
+  updateCalc();
 }
 
 function updateCalc() {

@@ -383,7 +383,7 @@ function calcStats(rows) {
   const fail  = rows.filter(r => r.pf === 'Fail').length;
   const block = rows.filter(r => r.pf === 'Blocked').length;
   const nt    = rows.filter(r => r.pf === 'Not Tested').length;
-  const exec  = total - nt;
+  const exec  = total - nt - block; // Blocked not counted as executed
   const pPct  = total > 0 ? Math.round(pass/total*100) : 0;
   const ePct  = total > 0 ? Math.round(exec/total*100) : 0;
   const fPct  = total > 0 ? Math.round(fail/total*100) : 0;
